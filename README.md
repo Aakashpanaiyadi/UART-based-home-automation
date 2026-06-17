@@ -1,4 +1,4 @@
-# UART-based-home-automation
+# PIC16F877A Home Automation with UART Communication and Relay Control
 
 Home Automation System using PIC Microcontroller
 
