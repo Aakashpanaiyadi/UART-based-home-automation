@@ -1,126 +1,223 @@
 #include<pic.h>
+
 #define led1 RB1
+
 unsigned int T=0;
 unsigned char b[7];
 unsigned int k=0;
+
+
+/* Timer0 based delay */
 void delay()
 {
-T0CS=0;
-T0SE=0;
-PSA=0;
-PS0=1;
-PS1=1;
-PS2=0;
-TMR0=252;
-while(TMR0IF==0);
-TMR0IF=0;
-TMR0=0;
+    T0CS=0;       // Use internal instruction clock
+    T0SE=0;
+    PSA=0;        // Prescaler assigned to Timer0
+    PS0=1;
+    PS1=1;
+    PS2=0;
+
+    TMR0=252;
+
+    while(TMR0IF==0);
+
+    TMR0IF=0;
+    TMR0=0;
 }
+
+
+/* Generate delay using Timer0 */
 void delay1(unsigned int x)
 {
-for(int i=0;i<x;i++)
-{
-delay();
+    for(int i=0;i<x;i++)
+    {
+        delay();
+    }
 }
-}
+
+
+/* UART and external interrupt routine */
 void interrupt sb()
 {
-if(INTF==1)
-{
-INTF=0;
-T=1;
+    /* External interrupt received */
+    if(INTF==1)
+    {
+        INTF=0;
+        T=1;
+    }
+
+
+    /* Data received through UART */
+    if(RCIF==1)
+    {
+        RCIF=0;
+
+        b[k]=RCREG;       // Store received character
+        TXREG=b[k];       // Send it back through UART
+        k++;
+    }
 }
-if(RCIF==1)
-{
-RCIF=0;
-b[k]=RCREG;
-TXREG=b[k];
-k++;
-}
-}
+
+
+/* Send a string through UART */
 void serial(const unsigned char *a)
 {
-unsigned char i;
-for(i=0;a[i]!=0;i++)
-{
-TXREG=a[i];
-delay1(500);
+    unsigned char i;
+
+    for(i=0;a[i]!=0;i++)
+    {
+        TXREG=a[i];
+        delay1(500);
+    }
 }
-}
+
+
 void main()
 {
-TRISC=0X80;
-PORTC=0X00;
-TRISB=0X00;
-PORTB=0X00;
-TXSTA=0X24;
-RCSTA=0X90;
-TRISD=0X00;
-PORTD=0X00;
-SPBRG=25;
-PEIE=1;
-GIE=1;
-INTE=1;
-RCIE=1;
-while(1)
-{
-// HALL FAN
-{
-if( b[0] == 'H' &&b[1] == 'F'&& b[2] == '1')
-{
-RB1=1;
-b[0]=b[1]=b[2]=0;
-if(k==3){k=0;}
-}
-if(b[0] == 'H' && b[1] == 'F'&& b[2] == '0')
-{
-RB1=0;
-b[0]=b[1]=b[2]=0;
-if(k==3){k=0;}
-}
-//HALL LIGHT
-if(b[0] == 'H' &&b[1] == 'L'&& b[2] == '1')
-{
-RB0=1;
-b[0]=b[1]=b[2]=0;
-if(k==3){k=0;}
-}
-if(b[0] == 'H' &&b[1] == 'L'&& b[2] == '0')
-{
-RB0=0;
-b[0]=b[1]=b[2]=0;
-if(k==3){k=0;}
-}
+    /* UART pin configuration */
+    TRISC=0X80;
+    PORTC=0X00;
 
-//BEDROOM
+    /* PORTB used for controlling appliances */
+    TRISB=0X00;
+    PORTB=0X00;
+
+    /* UART configuration */
+    TXSTA=0X24;
+    RCSTA=0X90;
+
+    TRISD=0X00;
+    PORTD=0X00;
+
+    /* UART baud rate */
+    SPBRG=25;
+
+    /* Enable interrupts */
+    PEIE=1;
+    GIE=1;
+    INTE=1;
+    RCIE=1;
 
 
+    while(1)
+    {
+        /*
+         * HALL FAN
+         * HF1 = Fan ON
+         * HF0 = Fan OFF
+         */
+        if(b[0] == 'H' && b[1] == 'F' && b[2] == '1')
+        {
+            RB1=1;
 
-if( b[0] == 'B' &&b[1] == 'F'&& b[2] == '1')
-{
-RB3=1;
-b[0]=b[1]=b[2]=0;
-if(k==3){k=0;}
-}
-if(b[0] == 'B' && b[1] == 'F'&& b[2] == '0')
-{
-RB3=0;
-b[0]=b[1]=b[2]=0;
-if(k==3){k=0;}
-}
-//HALL LIGHT
-if(b[0] == 'B' &&b[1] == 'L'&& b[2] == '1')
-{
-RB2=1;
-b[0]=b[1]=b[2]=0;
-if(k==3){k=0;}
-}
-if(b[0] == 'B' &&b[1] == 'L'&& b[2] == '0')
-{
-RB2=0;
-b[0]=b[1]=b[2]=0;
-if(k==3){k=0;}
-}
-}
-}
+            b[0]=b[1]=b[2]=0;
+
+            if(k==3)
+            {
+                k=0;
+            }
+        }
+
+        if(b[0] == 'H' && b[1] == 'F' && b[2] == '0')
+        {
+            RB1=0;
+
+            b[0]=b[1]=b[2]=0;
+
+            if(k==3)
+            {
+                k=0;
+            }
+        }
+
+
+        /*
+         * HALL LIGHT
+         * HL1 = Light ON
+         * HL0 = Light OFF
+         */
+        if(b[0] == 'H' && b[1] == 'L' && b[2] == '1')
+        {
+            RB0=1;
+
+            b[0]=b[1]=b[2]=0;
+
+            if(k==3)
+            {
+                k=0;
+            }
+        }
+
+        if(b[0] == 'H' && b[1] == 'L' && b[2] == '0')
+        {
+            RB0=0;
+
+            b[0]=b[1]=b[2]=0;
+
+            if(k==3)
+            {
+                k=0;
+            }
+        }
+
+
+        /*
+         * BEDROOM FAN
+         * BF1 = Fan ON
+         * BF0 = Fan OFF
+         */
+        if(b[0] == 'B' && b[1] == 'F' && b[2] == '1')
+        {
+            RB3=1;
+
+            b[0]=b[1]=b[2]=0;
+
+            if(k==3)
+            {
+                k=0;
+            }
+        }
+
+        if(b[0] == 'B' && b[1] == 'F' && b[2] == '0')
+        {
+            RB3=0;
+
+            b[0]=b[1]=b[2]=0;
+
+            if(k==3)
+            {
+                k=0;
+            }
+        }
+
+
+        /*
+         * BEDROOM LIGHT
+         * BL1 = Light ON
+         * BL0 = Light OFF
+         */
+        if(b[0] == 'B' && b[1] == 'L' && b[2] == '1')
+        {
+            RB2=1;
+
+            b[0]=b[1]=b[2]=0;
+
+            if(k==3)
+            {
+                k=0;
+            }
+        }
+
+        if(b[0] == 'B' && b[1] == 'L' && b[2] == '0')
+        {
+            RB2=0;
+
+            b[0]=b[1]=b[2]=0;
+
+            if(k==3)
+            {
+                k=0;
+            }
+        }
+    }
 }
