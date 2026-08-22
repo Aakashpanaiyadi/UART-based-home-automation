@@ -1,96 +1,92 @@
 # PIC16F877A Home Automation with UART Communication and Relay Control
 
-Home Automation System using PIC Microcontroller
+## Home Automation System using PIC Microcontroller
 
 This project demonstrates a simple home automation system using a PIC microcontroller with serial communication control, simulated in Proteus. The system can control fans and lights in multiple rooms using commands sent via a serial interface.
 
-Project Overview
+## Project Overview
 
 The system uses a PIC microcontroller to control 2 LEDs, 2 motors (fans), and 4 relays. Users can send commands via serial communication (e.g., from a PC or Bluetooth module), and the microcontroller responds by switching the connected devices ON or OFF.
 
-Components Used
+## Components Used
 
-PIC Microcontroller (PIC16F877A)
+- PIC Microcontroller (PIC16F877A)
 
-2 LEDs
+- 2 LEDs
 
-2 Motors (representing fans)
+- 2 Motors (representing fans)
 
-4 Relays
+- 4 Relays
 
-Proteus simulation environment
+- Proteus simulation environment
 
-Serial communication interface (UART)
+- Serial communication interface (UART)
 
-Functionality
+## Functionality
 
 The system distinguishes commands using 3-character strings sent via UART:
 
-Hall Room:
+### Hall Room:
 
-"HF1" – Turn Hall Fan ON
+- "HF1" – Turn Hall Fan ON
 
-"HF0" – Turn Hall Fan OFF
+- "HF0" – Turn Hall Fan OFF
 
-"HL1" – Turn Hall Light ON
+- "HL1" – Turn Hall Light ON
 
-"HL0" – Turn Hall Light OFF
+- "HL0" – Turn Hall Light OFF
 
-Bedroom:
+### Bedroom:
 
-"BF1" – Turn Bedroom Fan ON
+- "BF1" – Turn Bedroom Fan ON
 
-"BF0" – Turn Bedroom Fan OFF
+- "BF0" – Turn Bedroom Fan OFF
 
-"BL1" – Turn Bedroom Light ON
+- "BL1" – Turn Bedroom Light ON
 
-"BL0" – Turn Bedroom Light OFF
+- "BL0" – Turn Bedroom Light OFF
 
 The microcontroller reads incoming data, stores it in a buffer, and then controls the appropriate devices based on the commands.
 
-Code Highlights
+### Code Highlights
 
-UART Communication
+- UART Communication
 
-Receives commands via RCREG.
+- Receives commands via RCREG.
 
-Echoes back received characters via TXREG.
+- Echoes back received characters via TXREG.
 
-Interrupts
+### Interrupts
 
-Handles UART receive (RCIF) and external interrupts (INTF) for responsive control.
+- Handles UART receive (RCIF) and external interrupts (INTF) for responsive control.
 
-Delay Functions
+### Delay Functions
 
-delay() and delay1() are used to introduce controlled timing for UART transmission and other operations.
+- delay() and delay1() are used to introduce controlled timing for UART transmission and other operations.
 
-Device Control
+### Device Control
 
 Uses PORTB pins to drive LEDs, relays, and motors:
 
-RB0 – Hall Light
+- RB0 – Hall Light
 
-RB1 – Hall Fan
+- RB1 – Hall Fan
 
-RB2 – Bedroom Light
+- RB2 – Bedroom Light
 
-RB3 – Bedroom Fan
+- RB3 – Bedroom Fan
 
-Simulation
+### Simulation
 
-Simulated in Proteus with LEDs representing lights and DC motors representing fans.
+- Simulated in Proteus with LEDs representing lights and DC motors representing fans.
 
-Serial monitor or virtual terminal can be used to send commands to the microcontroller.
+- Serial monitor or virtual terminal can be used to send commands to the microcontroller.
 
-How It Works
+### How It Works
 
-Load the code into the PIC microcontroller.
+- Send a 3-character command via serial communication from external devices.
 
-Connect the devices to the corresponding PORTB pins.
-
-Send a 3-character command via serial communication.
-
-The microcontroller turns ON/OFF the specified device based on the command.
+- The microcontroller turns ON/OFF the specified device based on the command.
 
 
 
